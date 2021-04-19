@@ -64,3 +64,4 @@ venv/
 *.db
 .idea/
 upload/
+postgres-data/
