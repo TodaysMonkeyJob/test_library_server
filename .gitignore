@@ -64,4 +64,7 @@ venv/
 *.db
 .idea/
 upload/
-postgres-data/
+./postgres-data
+pycache_/
+venv/
+migrations/

@@ -1,32 +1,56 @@
+#version: '3.8'
+#
+#services:
+#  api:
+#    build: .
+#    command: gunicorn --bind 0.0.0.0:5000 wsgi:app
+#    #environment:
+#    #  STAGE: test
+#    #  SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://postgres:123456@127.0.0.1/library
+#    ports:
+#      - 5000:5000
+#    depends_on:
+#      - db
+#
+#  db:
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: 123456
+#      POSTGRES_DB: library
+#    image: postgres:latest
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data/
+#    ports:
+#      - 5405:5432
+#volumes:
+#  postgres_data:
+
 version: '3.8'
 
 services:
-  api:
-    build: app/
+  app:
+    restart: always
+    build: .
+    expose:
+      - "5000"
     depends_on:
       - db
-    environment:
-      STAGE: test
-      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://postgres:123456@127.0.0.1/library
-    networks:
-      - default
-    ports:
-      - 5000:5000
     volumes:
-      - ./app:/usr/src/app/app
-      - ./migrations:/usr/src/app/migrations
-    restart: always
+      - app-data:/usr/src/app/static
+    command: /usr/local/bin/gunicorn -w 2 -b :5000 app:app
 
   db:
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: library
-    image: postgres:latest
-    networks:
-      - default
-    ports:
-      - 5405:5432
     restart: always
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: "library"
+      POSTGRES_PASSWORD: "353535"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5405:5432"
+
+volumes:
+  db-data:
+  app-data:
