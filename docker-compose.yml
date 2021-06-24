@@ -1,32 +1,34 @@
-version: '3.8'
-
+version: '3.7'
 services:
-  api:
-    build: app/
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: app:dev
+    expose:
+      - 5000
+    ports:
+    - 5000:5000
     depends_on:
       - db
-    environment:
-      STAGE: test
-      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://postgres:123456@127.0.0.1/library
-    networks:
-      - default
-    ports:
-      - 5000:5000
-    volumes:
-      - ./app:/usr/src/app/app
-      - ./migrations:/usr/src/app/migrations
-    restart: always
+#        condition: service_healthy
+#    volumes:
+#      - app-data:/usr/src/app/static
 
   db:
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: library
-    image: postgres:latest
-    networks:
-      - default
-    ports:
-      - 5405:5432
     restart: always
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "library"
+      POSTGRES_PASSWORD: "353535"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+#    volumes:
+#      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5405:5432"
+    healthcheck:
+      test: [ 'CMD', 'pg_isready', '-U', 'postgres' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
