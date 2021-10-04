@@ -1,7 +1,7 @@
 
 ## Installation
 ```sh
-git clone https://github.com/TodaysMonkeyJob/test_library_server.git
+git clone https://github.com/QFests/QFest.git
 cd BookLibrary
 python3 -m venv venv
 source ./venv/bin/activate
@@ -18,9 +18,9 @@ Python 3 is recommend, meanwhile this project is compatible with python 2.
 
 You can run this project with docker by running the following commands:
 ```sh
-docker build -t booklibrary:latest .
+docker build -t qfest:latest .
 
-docker run -ti -v `pwd`:/app -p 4000:4000 booklibrary:latest
+docker run -ti -v `pwd`:/app -p 4000:4000 qfest:latest
 ```
 
 By adding the `-v` above, you can make changes in the local files and they will

@@ -41,17 +41,17 @@
 
     }
 
-    document.getElementById('get_book_from_douban').addEventListener('click', function () {
+    document.getElementById('get_alcohol_from_douban').addEventListener('click', function () {
         var isbn = document.getElementById('isbn').value;
 
         if (isNaN(isbn) || isbn.length != 13) {
             createMessage('请填写正确的13位数字ISBN', 'warning');
         }
         else {
-            var douban_API = 'http://api.douban.com/v2/book/isbn/';
+            var douban_API = 'http://api.douban.com/v2/alcohol/isbn/';
             $.getJSON(douban_API + isbn + '?callback=?', {
                     fields: ['isbn', 'title', 'origin_title', 'subtitle',
-                        'author', 'translator', 'publisher', 'images', 'pubdate',
+                        'manufacturer', 'translator', 'distributor', 'images', 'pubdate',
                         'tags', 'pages', 'price', 'binding', 'summary', 'catalog'].join(',')
                 })
                 .done(function (data) {
@@ -67,9 +67,9 @@
                         document.getElementById('title').value = data.title;
                         document.getElementById('origin_title').value = data.origin_title;
                         document.getElementById('subtitle').value = data.subtitle;
-                        document.getElementById('author').value = data.author.join('/');
+                        document.getElementById('manufacturer').value = data.manufacturer.join('/');
                         document.getElementById('translator').value = data.translator.join('/');
-                        document.getElementById('publisher').value = data.publisher;
+                        document.getElementById('distributor').value = data.distributor;
                         document.getElementById('image').value = data.images.large || data.images.medium || data.images.small || '';
                         document.getElementById('pubdate').value = data.pubdate;
 

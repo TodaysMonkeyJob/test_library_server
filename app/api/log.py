@@ -17,19 +17,19 @@ class LogList(Resource):
     @marshal_with(logs_info_list)
     def get(self):
         parser.add_argument('user_id', type=int, location='args')
-        parser.add_argument('book_id', type=int, location='args')
+        parser.add_argument('alcohol_id', type=int, location='args')
         parser.add_argument('returned', type=int, location='args')
         args = parser.parse_args()
         page = args['page'] or 1
         per_page = args['per_page'] or default_per_page
         log_query = model_Log.query
         user_id = args['user_id']
-        book_id = args['book_id']
+        alcohol_id = args['alcohol_id']
         returned = args['returned']
         if user_id is not None:
             log_query = log_query.filter_by(user_id=user_id)
-        if book_id is not None:
-            log_query = log_query.filter_by(book_id=book_id)
+        if alcohol_id is not None:
+            log_query = log_query.filter_by(alcohol_id=alcohol_id)
         if returned is not None:
             log_query = log_query.filter_by(returned=returned)
         pagination = log_query.paginate(page=page, per_page=per_page)

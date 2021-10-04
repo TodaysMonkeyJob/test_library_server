@@ -27,7 +27,7 @@ def detail(user_id):
 
     page = request.args.get('page', 1, type=int)
     pagination = the_user.logs.filter_by(returned=show) \
-        .order_by(Log.borrow_timestamp.desc()).paginate(page, per_page=5)
+        .order_by(Log.buy_timestamp.desc()).paginate(page, per_page=5)
     logs = pagination.items
 
     return render_template("user_detail.html", user=the_user, logs=logs, pagination=pagination,

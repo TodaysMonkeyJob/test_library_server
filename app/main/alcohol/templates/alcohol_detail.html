@@ -4,51 +4,51 @@
 {%- block mycontent -%}
 <div class="well well-lg">
 
-    <h1 class="page-header animated fadeInLeft">{{ book.title }}
+    <h1 class="page-header animated fadeInLeft">{{ alcohol.title }}
         <br>
-        {%- if book.subtitle -%}
-        <small>{{ book.subtitle }}</small>
+        {%- if alcohol.subtitle -%}
+        <small>{{ alcohol.subtitle }}</small>
         {%- endif -%}
     </h1>
     <div class="primary-info">
-        {%- if book.image -%}
-        <img class="img-responsive" src="{{ book.image }}" alt="{{ book.title~' Cover' }}">
+        {%- if alcohol.image -%}
+        <img class="img-responsive" src="{{ alcohol.image }}" alt="{{ alcohol.title~' Cover' }}">
         {%- endif -%}
         <ul class="list-group">
-            <li class="list-group-item">ISBN: {{ book.isbn }}</li>
-            {%- if book.origin_title -%}
-            <li class="list-group-item">Original title: {{ book.origin_title }}</li>
+            <li class="list-group-item">ISBN: {{ alcohol.isbn }}</li>
+            {%- if alcohol.origin_title -%}
+            <li class="list-group-item">Original title: {{ alcohol.origin_title }}</li>
             {%- endif -%}
-            {%- if book.author -%}
-            <li class="list-group-item">Author: {{ book.author }}</li>
+            {%- if alcohol.manufacturer -%}
+            <li class="list-group-item">Manufacturer: {{ alcohol.manufacturer }}</li>
             {%- endif -%}
-            {%- if book.translator -%}
-            <li class="list-group-item">Translator: {{ book.translator }}</li>
+            {%- if alcohol.translator -%}
+            <li class="list-group-item">Translator: {{ alcohol.translator }}</li>
             {%- endif -%}
-            {%- if book.publisher -%}
-            <li class="list-group-item">Publishing house : {{ book.publisher }}</li>
+            {%- if alcohol.distributor -%}
+            <li class="list-group-item">Publishing house : {{ alcohol.distributor }}</li>
             {%- endif -%}
-            {%- if book.pubdate -%}
-            <li class="list-group-item">Publication date : {{ book.pubdate }}</li>
+            {%- if alcohol.pubdate -%}
+            <li class="list-group-item">Publication date : {{ alcohol.pubdate }}</li>
             {%- endif -%}
-            {%- if book.tags.count() -%}
+            {%- if alcohol.tags.count() -%}
             <li class="list-group-item">Label:
-                {% for tag in book.tags %}
+                {% for tag in alcohol.tags %}
                 <a class="tag line-wrap" href="{{ url_for('.tags',search=tag.name) }}">{{ tag.name }} <span
-                        class="badge">{{ tag.books.count() }}</span></a>
+                        class="badge">{{ tag.alcohols.count() }}</span></a>
                 {% endfor %}
             </li>
             {%- endif -%}
-            {%- if book.pages -%}
-            <li class="list-group-item">Number of pages : {{ book.pages }}</li>
+            {%- if alcohol.pages -%}
+            <li class="list-group-item">Number of pages : {{ alcohol.pages }}</li>
             {%- endif -%}
-            {%- if book.price -%}
-            <li class="list-group-item">Pricing: {{ book.price }}</li>
+            {%- if alcohol.price -%}
+            <li class="list-group-item">Pricing: {{ alcohol.price }}</li>
             {%- endif -%}
-            {%- if book.binding -%}
-            <li class="list-group-item">Binding: {{ book.binding }}</li>
+            {%- if alcohol.binding -%}
+            <li class="list-group-item">Binding: {{ alcohol.binding }}</li>
             {%- endif -%}
-            <li class="list-group-item">Collection/Available for borrow: {{ book.numbers }} / {{ book.can_borrow_number()
+            <li class="list-group-item">Collection/Available for buy: {{ alcohol.numbers }} / {{ alcohol.can_buy_number()
                 }}
             </li>
         </ul>
@@ -68,10 +68,10 @@
             <div id="summary" class="panel-collapse collapse in" role="tabpanel"
                  aria-labelledby="headingOne">
                 <div class="panel-body">
-                    {%- if book.summary_html -%}
-                    {{ book.summary_html|safe }}
+                    {%- if alcohol.summary_html -%}
+                    {{ alcohol.summary_html|safe }}
                     {%- else -%}
-                    {{ book.summary }}
+                    {{ alcohol.summary }}
                     {%- endif -%}
                 </div>
             </div>
@@ -89,10 +89,10 @@
             <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel"
                  aria-labelledby="headingTwo">
                 <div class="panel-body">
-                    {%- if book.catalog_html -%}
-                    {{ book.catalog_html|safe }}
+                    {%- if alcohol.catalog_html -%}
+                    {{ alcohol.catalog_html|safe }}
                     {%- else -%}
-                    {{ book.catalog }}
+                    {{ alcohol.catalog }}
                     {%- endif -%}
                 </div>
             </div>
@@ -102,37 +102,37 @@
 
     <div class="btn-group">
         {%- if current_user.is_authenticated -%}
-        {%- with log=current_user.borrowing(book) -%}
+        {%- with log=current_user.purchase(alcohol) -%}
         {%- if log -%}
         <a class="btn btn-primary"
-           href="{{ url_for('log.book_return',log_id=log.id,next=request.full_path ) }}">
+           href="{{ url_for('log.alcohol_return',log_id=log.id,next=request.full_path ) }}">
             Return
         </a>
         {%- else -%}
         <a class="btn btn-success"
-           href="{{ url_for('log.book_borrow',book_id=book.id,next=request.full_path) }}"
-           {%- if not book.can_borrow() -%}disabled="disabled" {%- endif -%}>
-            Borrow
+           href="{{ url_for('log.alcohol_buy',alcohol_id=alcohol.id,next=request.full_path) }}"
+           {%- if not alcohol.can_buy() -%}disabled="disabled" {%- endif -%}>
+            Buy
         </a>
         {%- endif -%}
         {%- endwith -%}
         {%- endif -%}
-        {%- if current_user.can(Permission.UPDATE_BOOK_INFORMATION) -%}
-        <a type="button" class="btn btn-warning" href="{{ url_for('book.edit',book_id=book.id) }}">
-            Edit book information
+        {%- if current_user.can(Permission.UPDATE_ALCOHOL_INFORMATION) -%}
+        <a type="button" class="btn btn-warning" href="{{ url_for('alcohol.edit',alcohol_id=alcohol.id) }}">
+            Edit alcohol information
         </a>
         {%- endif -%}
 
-        {%- if book.hidden -%}
+        {%- if alcohol.hidden -%}
         {%- if current_user.is_administrator() -%}
         <a type="button" class="btn btn-info"
-           href="{{ url_for('book.put_back',book_id=book.id) }}">Restore books
+           href="{{ url_for('alcohol.put_back',alcohol_id=alcohol.id) }}">Restore alcohols
         </a>
         {%- endif -%}
         {%- else -%}
-        {%- if current_user.can(Permission.DELETE_BOOK) -%}
+        {%- if current_user.can(Permission.DELETE_ALCOHOL) -%}
         <a type="button" class="btn btn-danger"
-           href="{{ url_for('book.delete',book_id=book.id) }}">Delete book</a>
+           href="{{ url_for('alcohol.delete',alcohol_id=alcohol.id) }}">Delete alcohol</a>
         {%- endif -%}
         {%- endif -%}
     </div>
@@ -142,14 +142,14 @@
     <ul class="nav nav-tabs" role="tablist" id="log">
         {%- with tabindex= request.args.get('show') or '0' -%}
         <li role="presentation" {%- if tabindex=='0' -%}class="active" {%- endif -%}><a
-                href="{%- if tabindex=='0' -%}#log{%- else -%}{{ url_for('book.detail',book_id=book.id,show=0,_anchor='log') }}{%- endif -%}"
-                role="tab">Book review</a></li>
+                href="{%- if tabindex=='0' -%}#log{%- else -%}{{ url_for('alcohol.detail',alcohol_id=alcohol.id,show=0,_anchor='log') }}{%- endif -%}"
+                role="tab">Alcohol review</a></li>
         <li role="presentation" {%- if tabindex=='1' -%}class="active" {%- endif -%}><a
-                href="{%- if tabindex=='1' -%}#log{%- else -%}{{ url_for('book.detail',book_id=book.id,show=1,_anchor='log') }}{%- endif -%}"
-                role="tab">Current borrowing information</a></li>
+                href="{%- if tabindex=='1' -%}#log{%- else -%}{{ url_for('alcohol.detail',alcohol_id=alcohol.id,show=1,_anchor='log') }}{%- endif -%}"
+                role="tab">Current purchase information</a></li>
         <li role="presentation" {%- if tabindex=='2' -%}class="active" {%- endif -%}><a
-                href="{%- if tabindex=='2' -%}#log{%- else -%}{{ url_for('book.detail',book_id=book.id,show=2,_anchor='log') }}{%- endif -%}"
-                role="tab">Historical borrowing information</a></li>
+                href="{%- if tabindex=='2' -%}#log{%- else -%}{{ url_for('alcohol.detail',alcohol_id=alcohol.id,show=2,_anchor='log') }}{%- endif -%}"
+                role="tab">Historical purchase information</a></li>
         {%- endwith -%}
     </ul>
     <!-- Tab panes -->
@@ -164,7 +164,7 @@
                     <div class="col-md-4 col-md-offset-4">
                         <button type="button" class="btn btn-primary btn-block" data-toggle="modal"
                                 data-target="#myModal">
-                            I will evaluate this book
+                            I will evaluate this alcohol
                         </button>
                     </div>
                 </div>
@@ -216,9 +216,9 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">{{ current_user.name~' Correct '~book.title~' Book reviews ' }}</h4>
+                        <h4 class="modal-title">{{ current_user.name~' Correct '~alcohol.title~' Alcohol reviews ' }}</h4>
                     </div>
-                    <form action="{{ url_for('comment.add',book_id=book.id) }}" method="post" class="form"
+                    <form action="{{ url_for('comment.add',alcohol_id=alcohol.id) }}" method="post" class="form"
                           role="form">
                         {{ form.hidden_tag() }}
                         <div class="modal-body">
@@ -241,7 +241,7 @@
             <tr>
                 <th>User name</th>
                 <th class="hidden-xs">User email</th>
-                <th>Borrowing date</th>
+                <th>Purchase date</th>
                 <th>Return date</th>
             </tr>
             </thead>
@@ -253,7 +253,7 @@
                 </td>
                 <td class="hidden-xs">{{ log.user.email }}</td>
                 </td>
-                <td>{{ log.borrow_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
+                <td>{{ log.buy_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
                 <td>{{ log.return_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
             </tr>
             {%- endfor -%}
@@ -269,7 +269,7 @@
             <tr>
                 <th>User name</th>
                 <th class="hidden-xs">User email</th>
-                <th>Borrowing date</th>
+                <th>Purchase date</th>
                 <th>Return date</th>
             </tr>
             </thead>
@@ -281,7 +281,7 @@
                 </td>
                 <td class="hidden-xs">{{ log.user.email }}</td>
                 </td>
-                <td>{{ log.borrow_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
+                <td>{{ log.buy_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
                 <td>{{ log.return_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
             </tr>
             {%- endfor -%}

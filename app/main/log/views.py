@@ -1,45 +1,45 @@
 # -*- coding:utf-8 -*-
 from app import db
-from app.models import Book, Log, Permission
+from app.models import Alcohol, Log, Permission
 from flask import render_template, url_for, flash, redirect, request, abort
 from flask_login import login_required, current_user
 from . import log
 from ..decorators import permission_required
 
 
-@log.route('/borrow/')
+@log.route('/buy/')
 @login_required
-@permission_required(Permission.BORROW_BOOK)
-def book_borrow():
-    book_id = request.args.get('book_id')
-    the_book = Book.query.get_or_404(book_id)
-    if the_book.hidden and not current_user.is_administrator():
+@permission_required(Permission.BUY_ALCOHOL)
+def alcohol_buy():
+    alcohol_id = request.args.get('alcohol_id')
+    the_alcohol = Alcohol.query.get_or_404(alcohol_id)
+    if the_alcohol.hidden and not current_user.is_administrator():
         abort(404)
 
-    result, message = current_user.borrow_book(the_book)
+    result, message = current_user.buy_alcohol(the_alcohol)
     flash(message, 'success' if result else 'danger')
     db.session.commit()
-    return redirect(request.args.get('next') or url_for('book.detail', book_id=book_id))
+    return redirect(request.args.get('next') or url_for('alcohol.detail', alcohol_id=alcohol_id))
 
 
 @log.route('/return/')
 @login_required
-@permission_required(Permission.RETURN_BOOK)
-def book_return():
+@permission_required(Permission.RETURN_ALCOHOL)
+def alcohol_return():
     log_id = request.args.get('log_id')
-    book_id = request.args.get('book_id')
+    alcohol_id = request.args.get('alcohol_id')
     the_log = None
     if log_id:
         the_log = Log.query.get(log_id)
-    if book_id:
-        the_log = Log.query.filter_by(user_id=current_user.id, book_id=book_id).first()
+    if alcohol_id:
+        the_log = Log.query.filter_by(user_id=current_user.id, alcohol_id=alcohol_id).first()
     if log is None:
         flash(u'This record was not found', 'warning')
     else:
-        result, message = current_user.return_book(the_log)
+        result, message = current_user.return_alcohol(the_log)
         flash(message, 'success' if result else 'danger')
         db.session.commit()
-    return redirect(request.args.get('next') or url_for('book.detail', book_id=log_id))
+    return redirect(request.args.get('next') or url_for('alcohol.detail', alcohol_id=log_id))
 
 
 @log.route('/')
@@ -50,6 +50,6 @@ def index():
         show = 1
 
     page = request.args.get('page', 1, type=int)
-    pagination = Log.query.filter_by(returned=show).order_by(Log.borrow_timestamp.desc()).paginate(page, per_page=10)
+    pagination = Log.query.filter_by(returned=show).order_by(Log.buy_timestamp.desc()).paginate(page, per_page=10)
     logs = pagination.items
-    return render_template("logs_info.html", logs=logs, pagination=pagination, title=u"Borrowing information")
+    return render_template("logs_info.html", logs=logs, pagination=pagination, title=u"Purchase information")

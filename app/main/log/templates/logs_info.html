@@ -4,11 +4,11 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         {% if request.args.get('show',0)!='1' %}
-            <li role="presentation" class="active"><a href="#" role="tab">Current borrowing record</a></li>
-            <li role="presentation"><a href="{{ url_for('log.index',show=1) }}" role="tab">Historical borrowing records</a></li>
+            <li role="presentation" class="active"><a href="#" role="tab">Current purchase record</a></li>
+            <li role="presentation"><a href="{{ url_for('log.index',show=1) }}" role="tab">Historical purchase records</a></li>
         {% else %}
-            <li role="presentation"><a href="{{ url_for('log.index',show=0) }}" role="tab">Current borrowing record</a></li>
-            <li role="presentation" class="active"><a href="#" role="tab">Historical borrowing records</a></li>
+            <li role="presentation"><a href="{{ url_for('log.index',show=0) }}" role="tab">Current purchase record</a></li>
+            <li role="presentation" class="active"><a href="#" role="tab">Historical purchase records</a></li>
         {% endif %}
     </ul>
     <!-- Tab panes -->
@@ -19,8 +19,8 @@
                 <tr>
                     <th>Username</th>
                     <th>User email</th>
-                    <th>Borrow books</th>
-                    <th>Borrowing date</th>
+                    <th>Buy alcohols</th>
+                    <th>Purchase date</th>
                     <th>Due date</th>
                     {%- if current_user.is_authenticated -%}
                         <th>Operating</th>
@@ -32,9 +32,9 @@
                     <tr class="animated fadeIn delay-{{ loop.index0 }}">
                         <td><a href="{{ url_for('user.detail' ,user_id=log.user.id) }}">{{ log.user.name }}</a>
                             <a class="visible-xs-block"
-                               href="{{ url_for('book.detail',book_id=log.book.id) }}">{{ log.book.title }}</a>
-                            <p class="visible-xs-block">Borrowing date: <span
-                                    class="line-wrap">{{ log.borrow_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</span>
+                               href="{{ url_for('alcohol.detail',alcohol_id=log.alcohol.id) }}">{{ log.alcohol.title }}</a>
+                            <p class="visible-xs-block">Purchase date: <span
+                                    class="line-wrap">{{ log.buy_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</span>
                             </p>
                             <p class="visible-xs-block">Due date: <span
                                     class="line-wrap">{{ log.return_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</span>
@@ -42,7 +42,7 @@
                             {%- if current_user.is_authenticated -%}
                                 {% if current_user.id == log.user.id %}
                                     <a class="btn btn-primary visible-xs-block"
-                                       href="{{ url_for('log.book_return',log_id=log.id,next=request.path) }}">
+                                       href="{{ url_for('log.alcohol_return',log_id=log.id,next=request.path) }}">
                                         Return
                                     </a>
                                 {% else %}
@@ -53,14 +53,14 @@
                         </td>
                         <td class="hidden-xs">{{ log.user.email }}</td>
                         <td class="hidden-xs"><a
-                                href="{{ url_for('book.detail',book_id=log.book.id) }}">{{ log.book.title }}</a></td>
-                        <td class="hidden-xs">{{ log.borrow_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
+                                href="{{ url_for('alcohol.detail',alcohol_id=log.alcohol.id) }}">{{ log.alcohol.title }}</a></td>
+                        <td class="hidden-xs">{{ log.buy_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
                         <td class="hidden-xs">{{ log.return_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
                         {%- if current_user.is_authenticated -%}
                             <td class="hidden-xs">
                             {% if current_user.id == log.user.id %}
                                 <a class="btn btn-primary btn-block"
-                                   href="{{ url_for('log.book_return',log_id=log.id,next=request.path) }}">Return</a>
+                                   href="{{ url_for('log.alcohol_return',log_id=log.id,next=request.path) }}">Return</a>
                             {% else %}
                                 <button class="btn btn-warning btn-block" disabled>To be returned</button>
                             {% endif %}
@@ -78,8 +78,8 @@
                 <tr>
                     <th>Username</th>
                     <th>User email</th>
-                    <th>Borrow books</th>
-                    <th>Borrowing date</th>
+                    <th>Buy alcohols</th>
+                    <th>Purchase date</th>
                     <th>Due date</th>
                 </tr>
                 </thead>
@@ -88,9 +88,9 @@
                     <tr class="animated fadeIn delay-{{ loop.index0 }}">
                         <td><a href="{{ url_for('user.detail' ,user_id=log.user.id) }}">{{ log.user.name }}</a>
                             <a class="visible-xs-block"
-                               href="{{ url_for('book.detail',book_id=log.book.id) }}">{{ log.book.title }}</a>
-                            <p class="visible-xs-block">Borrowing date : <span
-                                    class="line-wrap">{{ log.borrow_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</span>
+                               href="{{ url_for('alcohol.detail',alcohol_id=log.alcohol.id) }}">{{ log.alcohol.title }}</a>
+                            <p class="visible-xs-block">Purchase date : <span
+                                    class="line-wrap">{{ log.buy_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</span>
                             </p>
                             <p class="visible-xs-block">Return date : <span
                                     class="line-wrap">{{ log.return_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</span>
@@ -98,8 +98,8 @@
                         </td>
                         <td class="hidden-xs">{{ log.user.email }}</td>
                         <td class="hidden-xs"><a
-                                href="{{ url_for('book.detail',book_id=log.book.id) }}">{{ log.book.title }}</a></td>
-                        <td class="hidden-xs">{{ log.borrow_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
+                                href="{{ url_for('alcohol.detail',alcohol_id=log.alcohol.id) }}">{{ log.alcohol.title }}</a></td>
+                        <td class="hidden-xs">{{ log.buy_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
                         <td class="hidden-xs">{{ log.return_timestamp.strftime('%d %B %Y - %H:%M:%S') }}</td>
 
                     </tr>

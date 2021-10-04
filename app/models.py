@@ -64,30 +64,30 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User %r>' % self.email
 
-    def borrowing(self, book):
-        return self.logs.filter_by(book_id=book.id, returned=0).first()
+    def purchase(self, alcohol):
+        return self.logs.filter_by(alcohol_id=alcohol.id, returned=0).first()
 
-    def can_borrow_book(self):
+    def can_buy_alcohol(self):
         return self.logs.filter(Log.returned == 0, Log.return_timestamp < datetime.now()).count() == 0
 
-    def borrow_book(self, book):
+    def buy_alcohol(self, alcohol):
         if self.logs.filter(Log.returned == 0, Log.return_timestamp < datetime.now()).count() > 0:
-            return False, u"Unable to borrow, you have overdue books that have not been returned"
-        if self.borrowing(book):
-            return False, u'It looks like you have already borrowed this book!!'
-        if not book.can_borrow():
-            return False, u'This book is too popular, we no longer have the collection, please wait for someone to return it and borrow it later'
+            return False, u"Unable to buy, you have overdue alcohols that have not been returned"
+        if self.purchase(alcohol):
+            return False, u'It looks like you have already purchased this alcohol!!'
+        if not alcohol.can_buy():
+            return False, u'This alcohol is too popular, we no longer have the collection, please wait for someone to return it and buy it later'
 
-        db.session.add(Log(self, book))
-        return True, u'You successfully GET a copy %s' % book.title
+        db.session.add(Log(self, alcohol))
+        return True, u'You successfully GET a copy %s' % alcohol.title
 
-    def return_book(self, log):
+    def return_alcohol(self, log):
         if log.returned == 1 or log.user_id != self.id:
             return False, u'This record was not found'
         log.returned = 1
         log.return_timestamp = datetime.now()
         db.session.add(log)
-        return True, u'You returned a copy %s' % log.book.title
+        return True, u'You returned a copy %s' % log.alcohol.title
 
     def avatar_url(self, _external=False):
         if self.avatar:
@@ -124,14 +124,14 @@ lm.anonymous_user = AnonymousUser
 
 
 class Permission(object):
-    RETURN_BOOK = 0x01
-    BORROW_BOOK = 0x02
+    RETURN_ALCOHOL = 0x01
+    BUY_ALCOHOL = 0x02
     WRITE_COMMENT = 0x04
     DELETE_OTHERS_COMMENT = 0x08
     UPDATE_OTHERS_INFORMATION = 0x10
-    UPDATE_BOOK_INFORMATION = 0x20
-    ADD_BOOK = 0x40
-    DELETE_BOOK = 0x80
+    UPDATE_ALCOHOL_INFORMATION = 0x20
+    ADD_ALCOHOL = 0x40
+    DELETE_ALCOHOL = 0x80
     ADMINISTER = 0x100
 
 
@@ -146,11 +146,11 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         roles = {
-            'User': (Permission.RETURN_BOOK |
-                     Permission.BORROW_BOOK |
+            'User': (Permission.RETURN_ALCOHOL |
+                     Permission.BUY_ALCOHOL |
                      Permission.WRITE_COMMENT, True),
-            'Moderator': (Permission.RETURN_BOOK |
-                          Permission.BORROW_BOOK |
+            'Moderator': (Permission.RETURN_ALCOHOL |
+                          Permission.BUY_ALCOHOL |
                           Permission.WRITE_COMMENT |
                           Permission.DELETE_OTHERS_COMMENT, False),
             'Administrator': (0x1ff, False)
@@ -168,16 +168,16 @@ class Role(db.Model):
         return '<Role %r>' % self.name
 
 
-class Book(db.Model):
-    __tablename__ = 'books'
+class Alcohol(db.Model):
+    __tablename__ = 'alcohols'
     id = db.Column(db.Integer, primary_key=True)
     isbn = db.Column(db.String(16), unique=True)
     title = db.Column(db.String(128))
     origin_title = db.Column(db.String(128))
     subtitle = db.Column(db.String(128))
-    author = db.Column(db.String(128))
+    manufacturer = db.Column(db.String(128))
     translator = db.Column(db.String(64))
-    publisher = db.Column(db.String(64))
+    distributor = db.Column(db.String(64))
     image = db.Column(db.String(128))
     pubdate = db.Column(db.String(32))
     pages = db.Column(db.Integer)
@@ -191,11 +191,11 @@ class Book(db.Model):
     hidden = db.Column(db.Boolean, default=0)
 
     logs = db.relationship('Log',
-                           backref=db.backref('book', lazy='joined'),
+                           backref=db.backref('alcohol', lazy='joined'),
                            lazy='dynamic',
                            cascade='all, delete-orphan')
 
-    comments = db.relationship('Comment', backref='book',
+    comments = db.relationship('Comment', backref='alcohol',
                                lazy='dynamic',
                                cascade='all, delete-orphan')
 
@@ -217,11 +217,11 @@ class Book(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def can_borrow(self):
-        return (not self.hidden) and self.can_borrow_number() > 0
+    def can_buy(self):
+        return (not self.hidden) and self.can_buy_number() > 0
 
-    def can_borrow_number(self):
-        return self.numbers - Log.query.filter_by(book_id=self.id, returned=0).count()
+    def can_buy_number(self):
+        return self.numbers - Log.query.filter_by(alcohol_id=self.id, returned=0).count()
 
     @staticmethod
     def on_changed_summary(target, value, oldvalue, initiaor):
@@ -240,54 +240,54 @@ class Book(db.Model):
                          tags=allowed_tags, strip=True))
 
     def __repr__(self):
-        return u'<Book %r>' % self.title
+        return u'<Alcohol %r>' % self.title
 
 
-db.event.listen(Book.summary, 'set', Book.on_changed_summary)
-db.event.listen(Book.catalog, 'set', Book.on_changed_catalog)
+db.event.listen(Alcohol.summary, 'set', Alcohol.on_changed_summary)
+db.event.listen(Alcohol.catalog, 'set', Alcohol.on_changed_catalog)
 
 
 class Log(db.Model):
     __tablename__ = 'logs'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
-    borrow_timestamp = db.Column(db.DateTime, default=datetime.now())
+    alcohol_id = db.Column(db.Integer, db.ForeignKey('alcohols.id'))
+    buy_timestamp = db.Column(db.DateTime, default=datetime.now())
     return_timestamp = db.Column(db.DateTime, default=datetime.now())
     returned = db.Column(db.Boolean, default=0)
 
-    def __init__(self, user, book):
+    def __init__(self, user, alcohol):
         self.user = user
-        self.book = book
-        self.borrow_timestamp = datetime.now()
+        self.alcohol = alcohol
+        self.buy_timestamp = datetime.now()
         self.return_timestamp = datetime.now() + timedelta(days=30)
         self.returned = 0
 
     def __repr__(self):
-        return u'<%r - %r>' % (self.user.name, self.book.title)
+        return u'<%r - %r>' % (self.user.name, self.alcohol.title)
 
 
 class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
+    alcohol_id = db.Column(db.Integer, db.ForeignKey('alcohols.id'))
     comment = db.Column(db.String(1024))
     create_timestamp = db.Column(db.DateTime, default=datetime.now())
     edit_timestamp = db.Column(db.DateTime, default=datetime.now())
     deleted = db.Column(db.Boolean, default=0)
 
-    def __init__(self, book, user, comment):
+    def __init__(self, alcohol, user, comment):
         self.user = user
-        self.book = book
+        self.alcohol = alcohol
         self.comment = comment
         self.create_timestamp = datetime.now()
         self.edit_timestamp = self.create_timestamp
         self.deleted = 0
 
 
-book_tag = db.Table('books_tags',
-                    db.Column('book_id', db.Integer, db.ForeignKey('books.id')),
+alcohol_tag = db.Table('alcohols_tags',
+                    db.Column('alcohol_id', db.Integer, db.ForeignKey('alcohols.id')),
                     db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'))
                     )
 
@@ -296,8 +296,8 @@ class Tag(db.Model):
     __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    books = db.relationship('Book',
-                            secondary=book_tag,
+    alcohols = db.relationship('Alcohol',
+                            secondary=alcohol_tag,
                             backref=db.backref('tags', lazy='dynamic'),
                             lazy='dynamic')
 

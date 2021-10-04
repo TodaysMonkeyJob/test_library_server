@@ -29,21 +29,21 @@
         <div class="container-fluid">
             {% for tag in tags %}
                 <a class="tag line-wrap" href="?search={{ tag.name|urlencode }}">{{ tag.name }} <span
-                        class="badge">{{ tag.books.count() }}</span></a>
+                        class="badge">{{ tag.alcohols.count() }}</span></a>
             {% endfor %}
         </div>
     {% endif %}
     {% if search_word %}
         {{ search_word }}
     {% endif %}
-    {% if books %}
+    {% if alcohols %}
         <table class="table table-striped table-hover">
             <thead>
             <tr>
                 <th>Title</th>
-                <th class="hidden-xs">Author</th>
+                <th class="hidden-xs">Manufacturer</th>
                 <th class="hidden-xs">ISBN</th>
-                <th class="hidden-xs">Collection / Available for borrow</th>
+                <th class="hidden-xs">Collection / Available for buy</th>
                 <th class="hidden-xs">Count of loads</th>
                 {%- if current_user.is_authenticated -%}
                     <th>Operating</th>
@@ -51,38 +51,38 @@
             </tr>
             </thead>
             <tbody>
-            {%- for book in books -%}
-                <tr class="{% if book.hidden %}danger{% endif %} animated fadeIn delay-{{ loop.index0 }}">
-                    <td><a href="{{ url_for('book.detail',book_id=book.id) }}">{{ book.title }}</a>
-                        <p class="visible-xs-block">{{ book.author }}</p>
-                        <p class="visible-xs-block">Collection / Alailable for borrow: {{ book.numbers }} / {{ book.can_borrow_number() }}</p>
-                        <p class="visible-xs-block">Number of books to be borrowed: {{ book.logs.count() }}</p>
+            {%- for alcohol in alcohols -%}
+                <tr class="{% if alcohol.hidden %}danger{% endif %} animated fadeIn delay-{{ loop.index0 }}">
+                    <td><a href="{{ url_for('alcohol.detail',alcohol_id=alcohol.id) }}">{{ alcohol.title }}</a>
+                        <p class="visible-xs-block">{{ alcohol.author }}</p>
+                        <p class="visible-xs-block">Collection / Alailable for buy: {{ alcohol.numbers }} / {{ alcohol.can_buy_number() }}</p>
+                        <p class="visible-xs-block">Number of alcohols to be purchased: {{ alcohol.logs.count() }}</p>
                     </td>
-                    <td class="hidden-xs">{{ book.author }}</td>
-                    <td class="hidden-xs">{{ book.isbn }}</td>
-                    <td class="hidden-xs">{{ book.numbers }} / {{ book.can_borrow_number() }}</td>
-                    <td class="hidden-xs">{{ book.logs.count() }}</td>
+                    <td class="hidden-xs">{{ alcohol.author }}</td>
+                    <td class="hidden-xs">{{ alcohol.isbn }}</td>
+                    <td class="hidden-xs">{{ alcohol.numbers }} / {{ alcohol.can_buy_number() }}</td>
+                    <td class="hidden-xs">{{ alcohol.logs.count() }}</td>
                     {%- if current_user.is_authenticated -%}
                         <td>
-                            {% with borrowing_log=current_user.borrowing(book) %}
-                                {%- if borrowing_log -%}
+                            {% with purchase_log=current_user.purchase(alcohol) %}
+                                {%- if purchase_log -%}
                                     <a class="btn btn-primary"
-                                       href="{{ url_for('log.book_return',log_id=borrowing_log.id,next=request.full_path) }}">Return</a>
+                                       href="{{ url_for('log.alcohol_return',log_id=purchase_log.id,next=request.full_path) }}">Return</a>
                                 {%- else -%}
                                     <a class="btn btn-success"
-                                       href="{{ url_for('log.book_borrow',book_id=book.id,next=request.full_path) }}"
-                                            {%- if not book.can_borrow() %} disabled="disabled"{%- endif -%}>Borrow</a>
+                                       href="{{ url_for('log.alcohol_buy',alcohol_id=alcohol.id,next=request.full_path) }}"
+                                            {%- if not alcohol.can_buy() %} disabled="disabled"{%- endif -%}>Buy</a>
                                 {%- endif -%}
                             {% endwith %}
-                            {% if book.hidden %}
+                            {% if alcohol.hidden %}
                                 {%- if current_user.is_administrator() -%}
                                     <a type="button" class="btn btn-info"
-                                       href="{{ url_for('book.put_back',book_id=book.id,next=request.full_path) }}">Restore books</a>
+                                       href="{{ url_for('alcohol.put_back',alcohol_id=alcohol.id,next=request.full_path) }}">Restore alcohols</a>
                                 {%- endif -%}
                             {% else %}
-                                {%- if current_user.can(Permission.DELETE_BOOK) -%}
+                                {%- if current_user.can(Permission.DELETE_ALCOHOL) -%}
                                     <a type="button" class="btn btn-danger"
-                                       href="{{ url_for('book.delete',book_id=book.id,next=request.full_path) }}">Delete book</a>
+                                       href="{{ url_for('alcohol.delete',alcohol_id=alcohol.id,next=request.full_path) }}">Delete alcohol</a>
                                 {%- endif -%}
                             {%- endif -%}
                         </td>

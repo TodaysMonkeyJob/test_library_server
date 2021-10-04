@@ -11,6 +11,6 @@ def load_user(id):
 from .index import main
 from .auth import auth
 from .user import user
-from .book import book
+from .alcohol import alcohol
 from .comment import comment
 from .log import log

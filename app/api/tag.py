@@ -5,7 +5,7 @@ from . import api, parser, default_per_page
 from .fields import tag_detail_fields, tag_list
 
 
-@api.route('/books/tags/<int:tag_id>/')
+@api.route('/alcohols/tags/<int:tag_id>/')
 class Tag(Resource):
     @marshal_with(tag_detail_fields)
     def get(self, tag_id):
@@ -14,7 +14,7 @@ class Tag(Resource):
         return tag
 
 
-@api.route('/books/tags/')
+@api.route('/alcohols/tags/')
 class TagList(Resource):
     @marshal_with(tag_list)
     def get(self):
