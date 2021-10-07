@@ -1,5 +1,5 @@
 from app.models import Tag as model_Tag
-from flask import url_for
+from flask import url_for, jsonify
 from flask_restful import Resource, marshal_with
 from . import api, parser, default_per_page
 from .fields import tag_detail_fields, tag_list
@@ -11,7 +11,7 @@ class Tag(Resource):
     def get(self, tag_id):
         tag = model_Tag.query.get_or_404(tag_id)
         tag.uri = url_for('api.tag', tag_id=tag.id, _external=True)
-        return tag
+        return jsonify(tag)
 
 
 @api.route('/alcohols/tags/')
@@ -29,7 +29,7 @@ class TagList(Resource):
         next = None
         if pagination.has_next:
             next = url_for('api.taglist', page=page + 1, per_page=per_page, _external=True)
-        return {
+        return jsonify({
             'items': items,
             'prev': prev,
             'next': next,
@@ -37,4 +37,4 @@ class TagList(Resource):
             'pages_count': pagination.pages,
             'current_page': pagination.page,
             'per_page': per_page,
-        }
+        })

@@ -1,5 +1,5 @@
 from app.models import Comment as model_Comment
-from flask import url_for
+from flask import url_for, jsonify
 from flask_restful import Resource, marshal_with, abort
 from . import api, parser, default_per_page
 from .fields import comment_detail_fields, comment_list
@@ -12,7 +12,7 @@ class Comment(Resource):
         comment = model_Comment.query.get_or_404(comment_id)
         if comment.deleted:
             abort(404)
-        return comment
+        return jsonify(comment)
 
 
 @api.route('/comments/')
@@ -50,7 +50,7 @@ class CommentList(Resource):
         next = None
         if pagination.has_next:
             next = url_for('api.commentlist', page=page + 1, per_page=per_page, _external=True)
-        return {
+        return jsonify({
             'items': items,
             'prev': prev,
             'next': next,
@@ -58,4 +58,4 @@ class CommentList(Resource):
             'pages_count': pagination.pages,
             'current_page': pagination.page,
             'per_page': per_page,
-        }
+        })

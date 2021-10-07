@@ -1,5 +1,5 @@
 from app.models import User as model_User
-from flask import url_for
+from flask import url_for, jsonify
 from flask_restful import Resource, marshal_with
 from . import api, parser, default_per_page
 from .fields import user_detail_fields, user_list
@@ -11,7 +11,7 @@ class User(Resource):
     def get(self, user_id):
         user = model_User.query.get_or_404(user_id)
         user.uri = url_for('api.user', user_id=user_id, _external=True)
-        return user
+        return jsonify(user)
 
 
 @api.route('/users/')
@@ -29,7 +29,7 @@ class UserList(Resource):
         next = None
         if pagination.has_next:
             next = url_for('api.userlist', page=page + 1, per_page=per_page, _external=True)
-        return {
+        return jsonify({
             'items': items,
             'prev': prev,
             'next': next,
@@ -37,4 +37,4 @@ class UserList(Resource):
             'pages_count': pagination.pages,
             'current_page': pagination.page,
             'per_page': per_page
-        }
+        })

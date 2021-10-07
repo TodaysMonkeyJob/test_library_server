@@ -1,5 +1,5 @@
 from app.models import Alcohol as model_Alcohol
-from flask import url_for
+from flask import url_for, jsonify
 from flask_restful import Resource, marshal_with, abort
 from . import api, parser, default_per_page
 from .fields import alcohol_detail_fields, alcohol_list
@@ -13,7 +13,7 @@ class Alcohol(Resource):
         if alcohol.hidden:
             abort(404)
             abort(404)
-        return alcohol
+        return jsonify(alcohol)
 
 
 @api.route('/alcohols/')
@@ -31,7 +31,7 @@ class AlcoholList(Resource):
         next = None
         if pagination.has_next:
             next = url_for('api.alcohollist', page=page + 1, count=per_page, _external=True)
-        return {
+        return jsonify({
             'items': items,
             'prev': prev,
             'next': next,
@@ -39,4 +39,4 @@ class AlcoholList(Resource):
             'pages_count': pagination.pages,
             'current_page': pagination.page,
             'per_page': per_page,
-        }
+        })

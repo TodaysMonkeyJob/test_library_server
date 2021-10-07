@@ -1,5 +1,5 @@
 from app.models import Log as model_Log
-from flask import url_for
+from flask import url_for, jsonify
 from flask_restful import Resource, marshal_with
 from . import api, parser, default_per_page
 from .fields import logs_info_detail_fields, logs_info_list
@@ -9,7 +9,7 @@ from .fields import logs_info_detail_fields, logs_info_list
 class Log(Resource):
     @marshal_with(logs_info_detail_fields)
     def get(self, log_id):
-        return model_Log.query.get_or_404(log_id)
+        return jsonify(model_Log.query.get_or_404(log_id))
 
 
 @api.route('/logs_info/')
@@ -40,7 +40,7 @@ class LogList(Resource):
         next = None
         if pagination.has_next:
             next = url_for('api.loglist', page=page + 1, per_page=per_page, _external=True)
-        return {
+        return jsonify({
             'items': items,
             'prev': prev,
             'next': next,
@@ -48,4 +48,4 @@ class LogList(Resource):
             'pages_count': pagination.pages,
             'current_page': pagination.page,
             'per_page': per_page
-        }
+        })
